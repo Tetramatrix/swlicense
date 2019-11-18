@@ -1,0 +1,182 @@
+<?php
+/*
+*      Copyright (c) 2019 Chi Hoang 
+*      All rights reserved
+*/
+
+error_reporting(E_ERROR | E_PARSE);
+
+require_once ("decorator.php");
+require_once ("license.php");
+require_once ("customer.php");
+require_once ("pluslic.php");
+require_once ("infinilic.php");
+require_once ("singlelic.php");
+require_once ("websites.php");
+
+use PHPUnit\Framework\TestCase;
+
+class SwLicense extends TestCase
+{
+
+    public function testInstanceOf()
+    {
+        $customer=new SwLicense\Customer("John","Doe","JohnDoe@test.com");
+        $this->assertInstanceOf("SwLicense\Customer",$customer); 
+    }
+    
+    public function testcu() {
+     
+        $customer=new SwLicense\Customer("John","Doe","JohnDoe@test.com");
+        $customer=new SwLicense\AddInfiniteLicense($customer);
+        $customer=new SwLicense\AddWebsite($customer,"www.test1.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test2.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test3.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test4.com");
+        
+        echo $customer->order(new SwLicense\License("Customer"));
+        $this->expectOutputString("Customer: Customer: John PWD: Doe email: JohnDoe@test.com".PHP_EOL);
+    }
+    
+    public function testlic() {
+     
+        $customer=new SwLicense\Customer("John","Doe","JohnDoe@test.com");
+        $customer=new SwLicense\AddInfiniteLicense($customer);
+        $customer=new SwLicense\AddWebsite($customer,"www.test1.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test2.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test3.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test4.com");
+        
+        echo $customer->order(new SwLicense\License("License"));
+        $this->expectOutputString("License: Infinite".chr(0xA).
+                                  "Price: $249".chr(0xA).
+                                  "Websites: Infinite".chr(0xA).
+                                  "Expire: 1 year".chr(0xA).
+                                  "Is expired: No.".chr(0xA));
+    }
+        
+    public function testws() {
+     
+        $customer=new SwLicense\Customer("John","Doe","JohnDoe@test.com");
+        $customer=new SwLicense\AddInfiniteLicense($customer);
+        $customer=new SwLicense\AddWebsite($customer,"www.test1.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test2.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test3.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test4.com");
+        
+        echo $customer->order(new SwLicense\License("Websites"));
+        $this->expectOutputString("Websites: Has www.test4.com website. Has www.test3.com website. Has www.test2.com website. Has www.test1.com website. \n");
+    }
+    
+    public function testws2() {
+     
+        $customer=new SwLicense\Customer("John","Doe","JohnDoe@test.com");
+        $customer=new SwLicense\AddInfiniteLicense($customer);
+        $customer=new SwLicense\AddWebsite($customer,"www.test1.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test2.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test3.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test4.com");
+        
+        $customer=new SwLicense\AddSingleLicense($customer);
+        $customer=new SwLicense\AddWebsite($customer,"www.test5.com");
+        $customer=new SwLicense\DeleteWebsite($customer,"www.test2.com");
+        $customer=new SwLicense\DeleteWebsite($customer,"www.test3.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test6.com");
+        
+        echo $customer->order(new SwLicense\License("Customer"));
+        $this->expectOutputString("Customer: Customer: John PWD: Doe email: KenSchick@test.com".PHP_EOL);
+        
+    }
+    
+    public function testws3() {
+     
+        $customer=new SwLicense\Customer("John","Doe","JohnDoe@test.com");
+        $customer=new SwLicense\AddInfiniteLicense($customer);
+        $customer=new SwLicense\AddWebsite($customer,"www.test1.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test2.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test3.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test4.com");
+        
+        $customer=new SwLicense\AddSingleLicense($customer);
+        $customer=new SwLicense\AddWebsite($customer,"www.test5.com");
+        $customer=new SwLicense\DeleteWebsite($customer,"www.test1.com");
+        $customer=new SwLicense\DeleteWebsite($customer,"www.test3.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test6.com");
+        
+        echo $customer->order(new SwLicense\License("License"));
+        $this->expectOutputString("License: Single".chr(0xA).
+                                  "Price: $49".chr(0xA).
+                                  "Websites: 1".chr(0xA).
+                                  "Expire: 1 year".chr(0xA).
+                                  "Is expired: No.".chr(0xA));
+        
+    }    
+    
+    public function testws4() {
+     
+        $customer=new SwLicense\Customer("John","Doe","JohnDoe@test.com");
+        $customer=new SwLicense\AddInfiniteLicense($customer);
+        $customer=new SwLicense\AddWebsite($customer,"www.test1.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test2.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test3.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test4.com");
+        
+        $customer=new SwLicense\AddSingleLicense($customer);
+        $customer=new SwLicense\AddWebsite($customer,"www.test5.com");
+        $customer=new SwLicense\DeleteWebsite($customer,"www.test1.com");
+        $customer=new SwLicense\DeleteWebsite($customer,"www.test3.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test6.com");
+        
+        echo $customer->order(new SwLicense\License("Websites"));
+        $this->expectOutputString("Websites: Has www.test2.com website. \n");
+        
+    }
+    
+    public function testws5() {
+        
+        $customer=new SwLicense\Customer("John","Doe","JohnDoe@test.com");
+        $customer=new SwLicense\AddInfiniteLicense($customer);
+        $customer=new SwLicense\AddWebsite($customer,"www.test1.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test2.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test3.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test4.com");
+       
+        $customer=new SwLicense\AddSingleLicense($customer);
+        $customer=new SwLicense\AddWebsite($customer,"www.test5.com");
+        $customer=new SwLicense\DeleteWebsite($customer,"www.test1.com");
+        $customer=new SwLicense\DeleteWebsite($customer,"www.test3.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test6.com");
+        
+        $customer=new SwLicense\AddPlusLicense($customer);
+        
+        echo $customer->order(new SwLicense\License("License"));
+        $this->expectOutputString("License: Plus".chr(0xA).
+                                  "Price: $99".chr(0xA).
+                                  "Websites: 3".chr(0xA).
+                                  "Expire: 1 year".chr(0xA).
+                                  "Is expired: No.".chr(0xA));
+    }
+    
+        public function testws6() {
+        
+        $customer=new SwLicense\Customer("John","Doe","JohnDoe@test.com");
+        $customer=new SwLicense\AddInfiniteLicense($customer);
+        $customer=new SwLicense\AddWebsite($customer,"www.test1.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test2.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test3.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test4.com");
+       
+        $customer=new SwLicense\AddSingleLicense($customer);
+        $customer=new SwLicense\AddWebsite($customer,"www.test5.com");
+        $customer=new SwLicense\DeleteWebsite($customer,"www.test1.com");
+        $customer=new SwLicense\DeleteWebsite($customer,"www.test3.com");
+        $customer=new SwLicense\AddWebsite($customer,"www.test6.com");
+        
+        $customer=new SwLicense\AddPlusLicense($customer);
+        
+        echo $customer->order(new SwLicense\License("Websites"));
+        $this->expectOutputString("Websites: Has www.test5.com website. Has www.test4.com website. Has www.test2.com website. \n");
+    }
+    
+    
+}
